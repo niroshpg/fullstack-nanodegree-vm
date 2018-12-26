@@ -1,0 +1,37 @@
+{% extends "main.html" %}
+{% block title %}New Item{% endblock %}
+{% block content %}
+    <h1>Add New Item</h1>
+    <div class="mdl-grid catalogue-form mdl-shadow--2dp">
+        <form action="{{ url_for('createItem') }}" method="post" enctype="multipart/form-data">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" name="title" id="title" />
+                <label class="mdl-textfield__label" for="title">Item title</label>
+            </div>
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <textarea class="mdl-textfield__input" name="description" rows="3" cols="30" id="description"></textarea>
+                <label class="mdl-textfield__label" for="description">Description</label>
+            </div>
+            <br>
+
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select class="mdl-textfield__input" name="category_id" id="category">
+                    {% for category in categories %}
+                        {% if category.id == ref_category %}
+                        <option value="{{ category.id }}" selected>{{ category.title }}</option>
+                        {% else %}
+                        <option value="{{ category.id }}">{{ category.title }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <label class="mdl-textfield__label" for="category">Category</label>
+            </div>
+            <br>
+            <br>
+            <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" value="Create">
+            <a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--grey-300 zooma-cancel-button" href="{{ url_for('showCategories') }}">Cancel</a>
+        </form>
+    </div>
+{% endblock %}
