@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from db_set_schema import *
 
 engine = create_engine('sqlite:///catalogue.db')
-DBSession = sessionmaker(bind = engine)
+DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 session.query(Category).delete()
@@ -32,18 +32,11 @@ item1 = Item(
         "Soccuer Ball "
         "description "
     ),
-    # quantity=3,
-    # image_url="https://upload.wikimedia.org/wikipedia/commons/6/66/Polar_Bear_-_Alaska_(cropped).jpg"
+    author="admin"
 )
 session.add(item1)
 session.commit()
 
-# session.add_all([Category(title = "Soccer", items=[]),
-#     Category(title = "Basketball"),
-#     Category(title = "Baseball"),
-#     Category(title = "Snowboarding"),
-#     Category(title = "Football"),
-#     Category(title = "Hockey")])
 session.commit()
 
 print "Reset database for initial setup"

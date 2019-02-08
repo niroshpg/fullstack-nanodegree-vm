@@ -33,8 +33,11 @@ To run this final project
     vagrant ssh
 
 5. OAuth setup
-Go to the Google Developers Console and register the project
-Once you have your credentials, put the IDs and secrets inside client_secrets.json
+* Go to the Google Developers Console and register the project
+* Set authorised origins and redirect urls as required
+  - if hosted in a server need to specify the domain or use xip.io as domain
+* Download the client_secrets.json copy to the project root folder
+* Update data-clientid in login.html with cleint id
 
 You will now be able to log in to the app.
 

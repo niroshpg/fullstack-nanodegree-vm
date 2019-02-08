@@ -22,11 +22,13 @@
             </div>
             <div class="mdl-card__supporting-text">
                 {{ item.description }}
+                <p>created by {{ item.author }}</p>
             </div>
 
             <div class="mdl-card__actions mdl-card--border">
-                {% if 'username' in session %}
-                <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="{{ url_for('editItem',  category_id=category.id, item_id=item.id) }}">
+                {% if 'username' in session and session.username == item.author %}
+                <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+                   href="{{ url_for('editItem',  category_id=category.id, item_id=item.id) }}">
                     Edit
                 </a>
                 <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="{{ url_for('deleteItem', category_id=category.id, item_id=item.id) }}">

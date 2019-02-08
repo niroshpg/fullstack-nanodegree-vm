@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from db_set_schema import Base, Category, Item
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
+from sqlalchemy.pool import SingletonThreadPool
 
 import random
 import string
@@ -12,10 +13,9 @@ import httplib2
 import json
 import requests
 
-
 app = Flask(__name__)
 
-engine = create_engine('sqlite:///catalogue.db')
+engine = create_engine('sqlite:///catalogue.db?check_same_thread=False')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -177,20 +177,26 @@ def editItem(category_id, item_id):
     session = DBSession()
     categories = session.query(Category).all()
     editedItem = session.query(Item).filter_by(id=item_id).one()
-    if request.method == 'POST':
-        if request.form['title']:
-            editedItem.title = request.form['title']
-            editedItem.description = request.form['description']
-            editedItem.category_id = request.form['category_id']
-            session.add(editedItem)
-            session.commit()
+    if editedItem.author == login_session['username']:
+        if request.method == 'POST':
+            if request.form['title']:
+                editedItem.title = request.form['title']
+                editedItem.description = request.form['description']
+                editedItem.category_id = request.form['category_id']
+                editedItem.author = login_session['username']
+                session.add(editedItem)
+                session.commit()
+                session.close()
+                return redirect(url_for('showItem', category_id=category_id,
+                                        item_id=item_id))
+        else:
             session.close()
-            return redirect(url_for('showItem', category_id=category_id,
-                                    item_id=item_id))
+            return render_template('edititem.html', item=editedItem,
+                                   categories=categories)
     else:
-        session.close()
-        return render_template('edititem.html', item=editedItem,
-                               categories=categories)
+            session.close()
+            return render_template('edititem.html', item=editedItem,
+                                   categories=categories)
 
 
 # # Delete an item
@@ -199,12 +205,19 @@ def editItem(category_id, item_id):
 def deleteItem(category_id, item_id):
     session = DBSession()
     categories = session.query(Category).all()
-    itemToDelete = session.query(Item).filter_by(id=item_id).one()
 
-    if request.method == 'POST':
-        session.delete(itemToDelete)
-        session.commit()
-        return redirect(url_for('showItems', category_id=category_id))
+    itemToDelete = session.query(Item).filter_by(id=item_id).one()
+    print jsonify(Items=itemToDelete.serialize).get_data(as_text=True)
+
+    if itemToDelete.author == login_session['username']:
+        if request.method == 'POST':
+            session.delete(itemToDelete)
+            session.commit()
+            return redirect(url_for('showItems', category_id=category_id))
+        else:
+            session.close()
+            return render_template('deleteitem.html', categories=categories,
+                                   item=itemToDelete)
     else:
         session.close()
         return render_template('deleteitem.html', categories=categories,
@@ -228,6 +241,7 @@ def createItem():
     categories = session.query(Category).all()
     if request.method == 'POST':
         newItem = Item(description=request.form['description'],
+                       author=login_session['username'],
                        title=request.form['title'],
                        category_id=request.form['category_id'])
         session.add(newItem)
